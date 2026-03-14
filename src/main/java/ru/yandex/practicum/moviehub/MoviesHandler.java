@@ -21,6 +21,7 @@ public class MoviesHandler extends BaseHttpHandler {
         String method = ex.getRequestMethod();
         String path = ex.getRequestURI().getPath();
 
+        // GET /movies
         if (method.equals("GET") && path.equals("/movies")) {
 
             String query = ex.getRequestURI().getQuery();
@@ -37,7 +38,8 @@ public class MoviesHandler extends BaseHttpHandler {
 
                 } catch (NumberFormatException e) {
 
-                    sendJson(ex, 400, gson.toJson("Некорректный параметр year"));
+                    sendJson(ex, 400,
+                            gson.toJson("Некорректный параметр 'year': должно быть число"));
                 }
 
                 return;
@@ -47,13 +49,15 @@ public class MoviesHandler extends BaseHttpHandler {
             return;
         }
 
+        // POST /movies
         if (method.equals("POST") && path.equals("/movies")) {
 
             String contentType = ex.getRequestHeaders().getFirst("Content-Type");
 
             if (contentType == null || !contentType.contains("application/json")) {
 
-                sendJson(ex, 415, gson.toJson("Unsupported Media Type"));
+                sendJson(ex, 415,
+                        gson.toJson("Неподдерживаемый тип содержимого. Ожидается application/json"));
                 return;
             }
 
@@ -66,7 +70,10 @@ public class MoviesHandler extends BaseHttpHandler {
 
             if (!errors.isEmpty()) {
 
-                ErrorResponse err = new ErrorResponse("Ошибка валидации", errors);
+                ErrorResponse err = new ErrorResponse(
+                        "Ошибка валидации",
+                        errors
+                );
 
                 sendJson(ex, 422, gson.toJson(err));
                 return;
@@ -78,6 +85,7 @@ public class MoviesHandler extends BaseHttpHandler {
             return;
         }
 
+        // /movies/{id}
         if (path.startsWith("/movies/")) {
 
             String idStr = path.substring("/movies/".length());
@@ -88,7 +96,8 @@ public class MoviesHandler extends BaseHttpHandler {
                 id = Integer.parseInt(idStr);
             } catch (NumberFormatException e) {
 
-                sendJson(ex, 400, gson.toJson("Некорректный ID"));
+                sendJson(ex, 400,
+                        gson.toJson("Некорректный ID: " + idStr + ". ID должен быть числом"));
                 return;
             }
 
@@ -98,7 +107,8 @@ public class MoviesHandler extends BaseHttpHandler {
 
                 if (movie == null) {
 
-                    sendJson(ex, 404, gson.toJson("Фильм не найден"));
+                    sendJson(ex, 404,
+                            gson.toJson("Фильм с ID " + id + " не найден"));
                     return;
                 }
 
@@ -112,7 +122,8 @@ public class MoviesHandler extends BaseHttpHandler {
 
                 if (!removed) {
 
-                    sendJson(ex, 404, gson.toJson("Фильм не найден"));
+                    sendJson(ex, 404,
+                            gson.toJson("Фильм с ID " + id + " не найден"));
                     return;
                 }
 
@@ -121,7 +132,8 @@ public class MoviesHandler extends BaseHttpHandler {
             }
         }
 
-        sendJson(ex, 405, gson.toJson("Метод не поддерживается"));
+        sendJson(ex, 405,
+                gson.toJson("Метод " + method + " не поддерживается"));
     }
 
     private List<String> validate(Movie movie) {
@@ -129,17 +141,17 @@ public class MoviesHandler extends BaseHttpHandler {
         List<String> errors = new ArrayList<>();
 
         if (movie.getTitle() == null || movie.getTitle().isBlank()) {
-            errors.add("название не должно быть пустым");
+            errors.add("Название фильма не должно быть пустым");
         }
 
         if (movie.getTitle() != null && movie.getTitle().length() > 100) {
-            errors.add("название не должно быть длиннее 100 символов");
+            errors.add("Название фильма не должно быть длиннее 100 символов");
         }
 
         int currentYear = Year.now().getValue();
 
         if (movie.getYear() < 1888 || movie.getYear() > currentYear + 1) {
-            errors.add("год должен быть между 1888 и " + (currentYear + 1));
+            errors.add("Год должен быть между 1888 и " + (currentYear + 1));
         }
 
         return errors;
