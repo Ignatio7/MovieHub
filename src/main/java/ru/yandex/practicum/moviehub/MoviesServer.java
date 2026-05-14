@@ -19,7 +19,7 @@ public class MoviesServer {
 
         } catch (IOException e) {
 
-            throw new RuntimeException(e);
+            throw new RuntimeException("Не удалось создать сервер", e);
         }
     }
 

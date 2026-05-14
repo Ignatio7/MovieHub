@@ -14,9 +14,13 @@ public class MoviesStore {
     }
 
     public Movie add(Movie movie) {
+
         int id = idGenerator.getAndIncrement();
+
         movie.setId(id);
+
         movies.put(id, movie);
+
         return movie;
     }
 
@@ -29,6 +33,7 @@ public class MoviesStore {
     }
 
     public List<Movie> getByYear(int year) {
+
         return movies.values()
                 .stream()
                 .filter(m -> m.getYear() == year)

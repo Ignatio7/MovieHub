@@ -22,6 +22,7 @@ public class Movie {
         this.id = id;
     }
 
+
     public String getTitle() {
         return title;
     }
@@ -29,6 +30,7 @@ public class Movie {
     public void setTitle(String title) {
         this.title = title;
     }
+
 
     public int getYear() {
         return year;
